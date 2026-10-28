@@ -1,155 +1,437 @@
 {
-	"info": {
-		"_postman_id": "56a2f0e0-fd60-4489-863d-8973078ddfc5",
-		"name": "Nisum",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "7347693"
-	},
-	"item": [
-		{
-			"name": "Create Success",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/register/create",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"register",
-						"create"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Email Exist",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"jhon@lizcano.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/register/create",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"register",
-						"create"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Email Invalid",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/register/create",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"register",
-						"create"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Password Invalid",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2$%\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/register/create",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"register",
-						"create"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Name Null",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/register/create",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"register",
-						"create"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "56a2f0e0-fd60-4489-863d-8973078ddfc5",
+    "name": "Nisum",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7347693"
+  },
+  "item": [
+    {
+      "name": "Create Success",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"uniqueEmail\", `user${Date.now()}@rodriguez.org`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();\r\nconst user = json.user;\r\nconst decode = s => JSON.parse(atob(\r\n    (s + \"=\".repeat((4 - s.length % 4) % 4)).replace(/-/g, \"+\").replace(/_/g, \"/\")));\r\n\r\npm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));\r\n\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\n\r\npm.test(\"Trae los campos requeridos\", () => {\r\n    [\"id\", \"created\", \"modified\", \"last_login\", \"token\", \"isactive\"]\r\n        .forEach(k => pm.expect(user, k).to.have.property(k));\r\n});\r\n\r\npm.test(\"El id es un UUID\", () =>\r\n    pm.expect(user.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/));\r\n\r\npm.test(\"Usuario nuevo: last_login coincide con created y isactive es true\", () => {\r\n    pm.expect(user.last_login).to.eql(user.created);\r\n    pm.expect(user.isactive).to.eql(true);\r\n});\r\n\r\npm.test(\"El token es un JWT con tres partes (firma no vacía)\", () =>\r\n    pm.expect(user.token).to.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/));\r\n\r\npm.test(\"El JWT está firmado con HS256 y su sub es el id del usuario\", () => {\r\n    const [h, p] = user.token.split(\".\");\r\n    pm.expect(decode(h).alg).to.eql(\"HS256\");\r\n    pm.expect(decode(p).sub).to.eql(user.id);\r\n    pm.expect(decode(p).exp).to.be.above(decode(p).iat);\r\n});\r\n\r\npm.test(\"La respuesta no expone la contraseña\", () =>\r\n    pm.expect(pm.response.text()).to.not.include(\"password\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"{{uniqueEmail}}\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Empty Phones",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"Debe tener al menos un teléfono\";\r\n\r\npm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": []\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Malformed JSON",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"El cuerpo de la petición no es un JSON válido\";\r\n\r\npm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: \"El cuerpo de la petición no es un JSON válido\" }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\":",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Wrong Content-Type",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"La API solo acepta application/json\";\r\n\r\npm.test(\"Status 415 Unsupported Media Type\", () => pm.response.to.have.status(415));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {
+          "content-type": true
+        }
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Method Not Allowed",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"Método HTTP no permitido\";\r\n\r\npm.test(\"Status 405 Method Not Allowed\", () => pm.response.to.have.status(405));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"Recurso no encontrado\";\r\n\r\npm.test(\"Status 404 Not Found\", () => pm.response.to.have.status(404));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/ruta-que-no-existe",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "ruta-que-no-existe"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Name Null",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"El nombre no debe ser nulo o vacío\";\r\n\r\npm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Email Invalid",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"El correo no tiene una estructura válida\";\r\n\r\npm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Password Invalid",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"El password no tiene una estructura válida\";\r\n\r\npm.test(\"Status 400 Bad Request\", () => pm.response.to.have.status(400));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"juan@rodriguez.org\",\r\n    \"password\": \"hunter2$%\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Email Exist",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const mensajeEsperado = \"El correo ya está registrado\";\r\n\r\npm.test(\"Status 409 Conflict\", () => pm.response.to.have.status(409));\r\npm.test(\"Responde JSON\", () =>\r\n    pm.response.to.have.header(\"Content-Type\", \"application/json\"));\r\npm.test(`El cuerpo es exactamente { \"mensaje\": \"${mensajeEsperado}\" }`, () =>\r\n    pm.expect(pm.response.json()).to.eql({ mensaje: mensajeEsperado }));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Juan Rodriguez\",\r\n    \"email\": \"jhon@lizcano.org\",\r\n    \"password\": \"hunter2\",\r\n    \"phones\": [\r\n        {\r\n            \"number\": \"1234567\",\r\n            \"citycode\": \"1\",\r\n            \"countrycode\": \"57\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/register/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "register",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "uniqueEmail",
+      "value": ""
+    }
+  ]
 }
