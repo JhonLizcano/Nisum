@@ -75,7 +75,7 @@ class RegisterIntegrationTest {
                   "password": "%s",
                   "phones": [
                     {"number": "1234567", "citycode": "1", "countrycode": "57"},
-                    {"number": "7654321", "citycode": "2", "contrycode": "58"}
+                    {"number": "7654321", "citycode": "2", "countrycode": "58"}
                   ]
                 }""".formatted(email, password);
     }
@@ -119,7 +119,7 @@ class RegisterIntegrationTest {
         Set<String> numbers = saved.getPhones().stream().map(Phone::getNumber).collect(Collectors.toSet());
         Set<String> countryCodes = saved.getPhones().stream().map(Phone::getCountryCode).collect(Collectors.toSet());
         assertEquals(Set.of("1234567", "7654321"), numbers);
-        assertEquals(Set.of("57", "58"), countryCodes); // el 58 llegó como "contrycode"
+        assertEquals(Set.of("57", "58"), countryCodes);
     }
 
     @Test

@@ -27,10 +27,7 @@ public class PhoneDTO {
     @Pattern(regexp = "\\d{1,4}", message = Constants.INVALID_CITY_CODE)
     private String citycode;
 
-    // El enunciado escribe "contrycode" (con ese typo); aceptamos ambos nombres
-    @Schema(description = "Código de país (solo dígitos, máximo 4). También se acepta el nombre 'contrycode'",
-            example = "57")
-    @JsonAlias("contrycode")
+    @Schema(description = "Código de país (solo dígitos, máximo 4)", example = "57")
     @NotNull(message = Constants.INVALID_COUNTRY_CODE)
     @Pattern(regexp = "\\d{1,4}", message = Constants.INVALID_COUNTRY_CODE)
     private String countrycode;

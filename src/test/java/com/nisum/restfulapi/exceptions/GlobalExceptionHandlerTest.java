@@ -151,23 +151,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Acepta 'contrycode' (el nombre del enunciado) como alias de countrycode")
-    void acceptsContrycodeAlias() throws Exception {
-        when(registerService.saveRegister(any(RequestRegister.class)))
-                .thenReturn(UserDto.builder().id("6e8b6014-2c70-478d-9bc1-e50deb22f46b").build());
-        String body = """
-            {"name": "Jhon Parra", "email": "jhon@parra.org", "password": "Hunter1",
-             "phones": [{"number": "1234567", "citycode": "1", "contrycode": "57"}]}""";
-
-        mockMvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isCreated());
-
-        ArgumentCaptor<RequestRegister> captor = ArgumentCaptor.forClass(RequestRegister.class);
-        verify(registerService).saveRegister(captor.capture());
-        assertEquals("57", captor.getValue().getPhones().get(0).getCountrycode());
-    }
-
-    @Test
     @DisplayName("Registro exitoso: 201 con los campos del usuario en el primer nivel")
     void successResponseIsFlat() throws Exception {
         when(registerService.saveRegister(any(RequestRegister.class)))
