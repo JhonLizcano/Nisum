@@ -10,8 +10,7 @@ import com.nisum.restfulapi.repository.UserRepository;
 import com.nisum.restfulapi.security.TokenProvider;
 import com.nisum.restfulapi.service.impl.RegisterServiceImpl;
 import com.nisum.restfulapi.util.Constants;
-import java.util.List;
-import java.util.Optional;
+import com.nisum.restfulapi.validation.PasswordPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RegisterService Test Suite")
-class RegisterServiceTest {
+public class RegisterServiceTest {
 
     @InjectMocks
     RegisterServiceImpl registerService;
@@ -45,17 +47,15 @@ class RegisterServiceTest {
     PasswordEncoder passwordEncoder;
     @Mock
     TokenProvider tokenProvider;
+    @Mock
+    PasswordPolicy passwordPolicy;
 
     private RequestRegister buildRequest(String password) {
         return RequestRegister.builder()
                 .name("Jhon Parra")
                 .email("Jhon@parra.org")
                 .password(password)
-                .phones(List.of(PhoneDTO.builder()
-                        .number("3001245778")
-                        .citycode("1")
-                        .countrycode("57")
-                        .build()))
+                .phones(List.of(PhoneDTO.builder().number("3001245778").citycode("1").countrycode("57").build()))
                 .build();
     }
 
@@ -63,7 +63,8 @@ class RegisterServiceTest {
     protected void saveRegister() {
         RequestRegister requestRegister = buildRequest("Hunter");
 
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(passwordPolicy.isValid("Hunter")).thenReturn(true);
+        when(userRepository.findByEmailIgnoreCase(anyString())).thenReturn(Optional.empty());
         when(tokenProvider.generateToken(any(User.class))).thenReturn("jwt-de-prueba");
         when(passwordEncoder.encode("Hunter")).thenReturn("hash-de-prueba");
         when(userRepository.save(any(User.class)))
@@ -94,6 +95,8 @@ class RegisterServiceTest {
     protected void saveRegisterPasswordInvalid() {
         RequestRegister requestRegister = buildRequest("Hunter3$%&");
 
+        when(passwordPolicy.isValid("Hunter3$%&")).thenReturn(false);
+
         InvalidPasswordException ex = assertThrows(InvalidPasswordException.class,
                 () -> registerService.saveRegister(requestRegister));
 
@@ -105,7 +108,8 @@ class RegisterServiceTest {
     protected void saveRegisterEmailExist() {
         RequestRegister requestRegister = buildRequest("Hunter");
 
-        when(userRepository.findByEmail(anyString()))
+        when(passwordPolicy.isValid("Hunter")).thenReturn(true);
+        when(userRepository.findByEmailIgnoreCase(anyString()))
                 .thenReturn(Optional.of(User.builder()
                         .name("Jhon Parra")
                         .email("Jhon@parra.org")

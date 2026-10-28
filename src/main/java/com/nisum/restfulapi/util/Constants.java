@@ -17,5 +17,8 @@ public class Constants {
     public static final String NOT_ACCEPTABLE = "La API solo retorna application/json";
     public static final String UNSUPPORTED_MEDIA_TYPE = "La API solo acepta application/json";
     public static final String INTERNAL_ERROR = "Error interno del servidor";
+    public static final String INVALID_PHONE_NUMBER = "El número de teléfono debe tener entre 1 y 10 dígitos";
+    public static final String INVALID_CITY_CODE = "El código de ciudad debe tener entre 1 y 4 dígitos";
+    public static final String INVALID_COUNTRY_CODE = "El código de país debe tener entre 1 y 4 dígitos";
 
 }

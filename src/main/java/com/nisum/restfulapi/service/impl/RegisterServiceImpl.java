@@ -9,36 +9,29 @@ import com.nisum.restfulapi.repository.UserRepository;
 import com.nisum.restfulapi.security.TokenProvider;
 import com.nisum.restfulapi.service.RegisterService;
 import com.nisum.restfulapi.util.RegisterMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.nisum.restfulapi.validation.PasswordPolicy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class RegisterServiceImpl implements RegisterService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private TokenProvider tokenProvider;
-
-    @Value("${registerapi.constants.passregexp}")
-    private String passwordRegex;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
+    private final PasswordPolicy passwordPolicy;
 
     @Override
     @Transactional
     public ResponseRegister saveRegister(RequestRegister requestRegister) {
-        passwordRegex = passwordRegex != null ? passwordRegex : "[A-Za-z0-9]*";
-        if (!requestRegister.getPassword().matches(passwordRegex)) {
+        if (!passwordPolicy.isValid(requestRegister.getPassword())) {
             throw new InvalidPasswordException();
         }
 
-        if (userRepository.findByEmail(requestRegister.getEmail()).isPresent()) {
+        if (userRepository.findByEmailIgnoreCase(requestRegister.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException();
         }
 
@@ -47,7 +40,9 @@ public class RegisterServiceImpl implements RegisterService {
         user.setPassword(passwordEncoder.encode(requestRegister.getPassword()));
         User savedUser = userRepository.save(user);
 
-        return ResponseRegister.builder().user(RegisterMapper.getUserDtoFromUser(savedUser)).build();
+        return ResponseRegister.builder()
+                .user(RegisterMapper.getUserDtoFromUser(savedUser))
+                .build();
     }
 
 }

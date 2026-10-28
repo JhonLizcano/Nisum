@@ -1,6 +1,7 @@
 package com.nisum.restfulapi.model.DTO;
 
 import com.nisum.restfulapi.util.Constants;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -18,18 +19,18 @@ import java.util.List;
 @AllArgsConstructor
 public class RequestRegister {
 
-	@NotBlank(message = Constants.BLANK_NAME)
-	private String name;
+    @NotBlank(message = Constants.BLANK_NAME)
+    private String name;
 
-	@Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", flags = Pattern.Flag.CASE_INSENSITIVE,
-			message = Constants.REGEX_MAIL)
-	@NotBlank(message = Constants.BLANK_MAIL)
-	private String email;
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}", flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = Constants.REGEX_MAIL)
+    @NotBlank(message = Constants.BLANK_MAIL)
+    private String email;
 
-	@NotBlank(message = Constants.BLANK_PASSWORD)
-	private String password;
+    @NotBlank(message = Constants.BLANK_PASSWORD)
+    private String password;
 
-	@NotEmpty(message = Constants.EMPTY_PHONES)
-    private List<PhoneDTO> phones;
+    @NotEmpty(message = Constants.EMPTY_PHONES)
+    private List<@Valid PhoneDTO> phones;
 
 }

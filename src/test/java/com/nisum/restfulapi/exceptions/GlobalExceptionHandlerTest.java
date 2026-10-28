@@ -2,12 +2,15 @@ package com.nisum.restfulapi.exceptions;
 
 import com.nisum.restfulapi.controller.RegisterController;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
+import com.nisum.restfulapi.model.DTO.ResponseRegister;
+import com.nisum.restfulapi.model.DTO.UserDto;
 import com.nisum.restfulapi.service.RegisterService;
 import com.nisum.restfulapi.util.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,7 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -132,6 +137,37 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.mensaje").value(Constants.INTERNAL_ERROR));
+    }
+
+    @Test
+    @DisplayName("Teléfono con letras: 400")
+    void invalidPhone() throws Exception {
+        String body = """
+            {"name": "Jhon Parra", "email": "jhon@parra.org", "password": "Hunter1",
+             "phones": [{"number": "12ab", "citycode": "1", "countrycode": "57"}]}""";
+
+        mockMvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value(Constants.INVALID_PHONE_NUMBER));
+    }
+
+    @Test
+    @DisplayName("Acepta 'contrycode' (el nombre del enunciado) como alias de countrycode")
+    void acceptsContrycodeAlias() throws Exception {
+        when(registerService.saveRegister(any(RequestRegister.class)))
+                .thenReturn(ResponseRegister.builder()
+                        .user(UserDto.builder().id("6e8b6014-2c70-478d-9bc1-e50deb22f46b").build())
+                        .build());
+        String body = """
+            {"name": "Jhon Parra", "email": "jhon@parra.org", "password": "Hunter1",
+             "phones": [{"number": "1234567", "citycode": "1", "contrycode": "57"}]}""";
+
+        mockMvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated());
+
+        ArgumentCaptor<RequestRegister> captor = ArgumentCaptor.forClass(RequestRegister.class);
+        verify(registerService).saveRegister(captor.capture());
+        assertEquals("57", captor.getValue().getPhones().get(0).getCountrycode());
     }
 
 }
