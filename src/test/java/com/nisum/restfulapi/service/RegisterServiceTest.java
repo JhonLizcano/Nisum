@@ -4,8 +4,8 @@ import com.nisum.restfulapi.exceptions.EmailAlreadyExistsException;
 import com.nisum.restfulapi.exceptions.InvalidPasswordException;
 import com.nisum.restfulapi.model.DTO.PhoneDTO;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
-import com.nisum.restfulapi.model.DTO.ResponseRegister;
 import com.nisum.restfulapi.model.User;
+import com.nisum.restfulapi.model.DTO.UserDto;
 import com.nisum.restfulapi.repository.UserRepository;
 import com.nisum.restfulapi.security.TokenProvider;
 import com.nisum.restfulapi.service.impl.RegisterServiceImpl;
@@ -74,13 +74,12 @@ public class RegisterServiceTest {
                         .isActive(Boolean.TRUE)
                         .build());
 
-        ResponseRegister responseRegister = registerService.saveRegister(requestRegister);
+        UserDto userDto = registerService.saveRegister(requestRegister);
 
-        assertNotNull(responseRegister);
-        assertNotNull(responseRegister.getUser());
-        assertEquals("6e8b6014-2c70-478d-9bc1-e50deb22f46b", responseRegister.getUser().getId());
-        assertEquals("jwt-de-prueba", responseRegister.getUser().getToken());
-        assertEquals(Boolean.TRUE, responseRegister.getUser().getIsactive());
+        assertNotNull(userDto);
+        assertEquals("6e8b6014-2c70-478d-9bc1-e50deb22f46b", userDto.getId());
+        assertEquals("jwt-de-prueba", userDto.getToken());
+        assertEquals(Boolean.TRUE, userDto.getIsactive());
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());

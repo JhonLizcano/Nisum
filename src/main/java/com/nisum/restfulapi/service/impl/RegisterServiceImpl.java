@@ -3,7 +3,7 @@ package com.nisum.restfulapi.service.impl;
 import com.nisum.restfulapi.exceptions.EmailAlreadyExistsException;
 import com.nisum.restfulapi.exceptions.InvalidPasswordException;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
-import com.nisum.restfulapi.model.DTO.ResponseRegister;
+import com.nisum.restfulapi.model.DTO.UserDto;
 import com.nisum.restfulapi.model.User;
 import com.nisum.restfulapi.repository.UserRepository;
 import com.nisum.restfulapi.security.TokenProvider;
@@ -26,7 +26,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Override
     @Transactional
-    public ResponseRegister saveRegister(RequestRegister requestRegister) {
+    public UserDto saveRegister(RequestRegister requestRegister) {
         if (!passwordPolicy.isValid(requestRegister.getPassword())) {
             throw new InvalidPasswordException();
         }
@@ -40,9 +40,7 @@ public class RegisterServiceImpl implements RegisterService {
         user.setPassword(passwordEncoder.encode(requestRegister.getPassword()));
         User savedUser = userRepository.save(user);
 
-        return ResponseRegister.builder()
-                .user(RegisterMapper.getUserDtoFromUser(savedUser))
-                .build();
+        return RegisterMapper.getUserDtoFromUser(savedUser);
     }
 
 }

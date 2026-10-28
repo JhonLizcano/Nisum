@@ -1,10 +1,10 @@
 package com.nisum.restfulapi.service;
 
 import com.nisum.restfulapi.model.DTO.RequestRegister;
-import com.nisum.restfulapi.model.DTO.ResponseRegister;
+import com.nisum.restfulapi.model.DTO.UserDto;
 
 public interface RegisterService {
 
-    ResponseRegister saveRegister(RequestRegister requestRegister);
+    UserDto saveRegister(RequestRegister requestRegister);
 
 }

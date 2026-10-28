@@ -2,7 +2,6 @@ package com.nisum.restfulapi.exceptions;
 
 import com.nisum.restfulapi.controller.RegisterController;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
-import com.nisum.restfulapi.model.DTO.ResponseRegister;
 import com.nisum.restfulapi.model.DTO.UserDto;
 import com.nisum.restfulapi.service.RegisterService;
 import com.nisum.restfulapi.util.Constants;
@@ -155,9 +154,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Acepta 'contrycode' (el nombre del enunciado) como alias de countrycode")
     void acceptsContrycodeAlias() throws Exception {
         when(registerService.saveRegister(any(RequestRegister.class)))
-                .thenReturn(ResponseRegister.builder()
-                        .user(UserDto.builder().id("6e8b6014-2c70-478d-9bc1-e50deb22f46b").build())
-                        .build());
+                .thenReturn(UserDto.builder().id("6e8b6014-2c70-478d-9bc1-e50deb22f46b").build());
         String body = """
             {"name": "Jhon Parra", "email": "jhon@parra.org", "password": "Hunter1",
              "phones": [{"number": "1234567", "citycode": "1", "contrycode": "57"}]}""";
@@ -168,6 +165,25 @@ class GlobalExceptionHandlerTest {
         ArgumentCaptor<RequestRegister> captor = ArgumentCaptor.forClass(RequestRegister.class);
         verify(registerService).saveRegister(captor.capture());
         assertEquals("57", captor.getValue().getPhones().get(0).getCountrycode());
+    }
+
+    @Test
+    @DisplayName("Registro exitoso: 201 con los campos del usuario en el primer nivel")
+    void successResponseIsFlat() throws Exception {
+        when(registerService.saveRegister(any(RequestRegister.class)))
+                .thenReturn(UserDto.builder()
+                        .id("6e8b6014-2c70-478d-9bc1-e50deb22f46b")
+                        .token("jwt-de-prueba")
+                        .isactive(Boolean.TRUE)
+                        .build());
+
+        mockMvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value("6e8b6014-2c70-478d-9bc1-e50deb22f46b"))
+                .andExpect(jsonPath("$.token").value("jwt-de-prueba"))
+                .andExpect(jsonPath("$.isactive").value(true))
+                .andExpect(jsonPath("$.user").doesNotExist());
     }
 
 }
