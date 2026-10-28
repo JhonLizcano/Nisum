@@ -1,63 +1,53 @@
 package com.nisum.restfulapi.service.impl;
 
-import com.nisum.restfulapi.model.DTO.PhoneDTO;
+import com.nisum.restfulapi.exceptions.EmailAlreadyExistsException;
+import com.nisum.restfulapi.exceptions.InvalidPasswordException;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
 import com.nisum.restfulapi.model.DTO.ResponseRegister;
-import com.nisum.restfulapi.model.Phone;
 import com.nisum.restfulapi.model.User;
-import com.nisum.restfulapi.repository.PhoneRepository;
-import com.nisum.restfulapi.repository.RegisterRepository;
+import com.nisum.restfulapi.repository.UserRepository;
+import com.nisum.restfulapi.security.TokenProvider;
 import com.nisum.restfulapi.service.RegisterService;
-import com.nisum.restfulapi.util.Constants;
 import com.nisum.restfulapi.util.RegisterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RegisterServiceImpl implements RegisterService {
 
     @Autowired
-    private RegisterRepository registerRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    private PhoneRepository phoneRepository;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     @Value("${registerapi.constants.passregexp}")
     private String passwordRegex;
 
     @Override
+    @Transactional
     public ResponseRegister saveRegister(RequestRegister requestRegister) {
         passwordRegex = passwordRegex != null ? passwordRegex : "[A-Za-z0-9]*";
-        if (!requestRegister.getPassword().matches(passwordRegex)){
-            return ResponseRegister.builder()
-                    .mensaje(Constants.REGEX_PASSWORD)
-                    .build();
+        if (!requestRegister.getPassword().matches(passwordRegex)) {
+            throw new InvalidPasswordException();
         }
 
-        Optional<User> userValidate = registerRepository.findByEmail(requestRegister.getEmail());
-        if (!userValidate.isPresent()) {
-            User user = registerRepository.save(RegisterMapper.getUserFromRequestRegister(requestRegister));
-            List<PhoneDTO> phoneDTOS = requestRegister.getPhones();
-            for (PhoneDTO phoneDTO : phoneDTOS) {
-                Phone phone = Phone.builder()
-                        .number(phoneDTO.getNumber())
-                        .cityCode(phoneDTO.getCitycode())
-                        .countryCode(phoneDTO.getCountrycode())
-                        .user(user)
-                        .build();
-                phoneRepository.save(phone);
-            }
-            return ResponseRegister.builder()
-                    .user(RegisterMapper.getUserDtoFromUser(user))
-                    .build();
-        } else {
-            return ResponseRegister.builder()
-                    .mensaje(Constants.EXIST_MAIL)
-                    .build();
+        if (userRepository.findByEmail(requestRegister.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException();
         }
+
+        User user = RegisterMapper.getUserFromRequestRegister(requestRegister);
+        user.setToken(tokenProvider.generateToken(user));
+        user.setPassword(passwordEncoder.encode(requestRegister.getPassword()));
+        User savedUser = userRepository.save(user);
+
+        return ResponseRegister.builder().user(RegisterMapper.getUserDtoFromUser(savedUser)).build();
     }
+
 }

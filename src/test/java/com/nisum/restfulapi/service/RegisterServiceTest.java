@@ -1,153 +1,122 @@
 package com.nisum.restfulapi.service;
 
+import com.nisum.restfulapi.exceptions.EmailAlreadyExistsException;
+import com.nisum.restfulapi.exceptions.InvalidPasswordException;
 import com.nisum.restfulapi.model.DTO.PhoneDTO;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
 import com.nisum.restfulapi.model.DTO.ResponseRegister;
-import com.nisum.restfulapi.model.DTO.UserDto;
-import com.nisum.restfulapi.model.Phone;
 import com.nisum.restfulapi.model.User;
-import com.nisum.restfulapi.repository.PhoneRepository;
-import com.nisum.restfulapi.repository.RegisterRepository;
+import com.nisum.restfulapi.repository.UserRepository;
+import com.nisum.restfulapi.security.TokenProvider;
 import com.nisum.restfulapi.service.impl.RegisterServiceImpl;
 import com.nisum.restfulapi.util.Constants;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RegisterService Test Suite")
-public class RegisterServiceTest {
+class RegisterServiceTest {
 
     @InjectMocks
     RegisterServiceImpl registerService;
 
     @Mock
-    RegisterRepository registerRepository;
-
+    UserRepository userRepository;
     @Mock
-    PhoneRepository phoneRepository;
+    PasswordEncoder passwordEncoder;
+    @Mock
+    TokenProvider tokenProvider;
+
+    private RequestRegister buildRequest(String password) {
+        return RequestRegister.builder()
+                .name("Jhon Parra")
+                .email("Jhon@parra.org")
+                .password(password)
+                .phones(List.of(PhoneDTO.builder()
+                        .number("3001245778")
+                        .citycode("1")
+                        .countrycode("57")
+                        .build()))
+                .build();
+    }
 
     @Test
     protected void saveRegister() {
-        List<PhoneDTO> phones = new ArrayList<>();
-        phones.add(PhoneDTO.builder()
-                .number(3001245778L)
-                .citycode(1)
-                .countrycode(57)
-                .build());
-        RequestRegister requestRegister = RequestRegister.builder()
-                .name("Jhon Parra")
-                .email("Jhon@parra.org")
-                .password("Hunter")
-                .phones(phones)
-                .build();
+        RequestRegister requestRegister = buildRequest("Hunter");
 
-        ResponseRegister responseRegisterExpected = ResponseRegister.builder()
-                .user(UserDto.builder()
-                        .id("6e8b6014-2c70-478d-9bc1-e50deb22f46b")
-                        .token("eyJhbGciOiJub25lIn0.eyJuYW1lIjoiSnVhbiBSb2RyaWd1ZXoiLCJlbWFpbCI6Im" +
-                                "p1YW5Acm9kcmlndWV6Lm9yZyIsInN1YiI6Ikp1YW4gUm9kcmlndWV6IiwianRpIjo" +
-                                "iODU1YzI5MDctMGU1Zi00MzY2LWExNzktOGI1YmVmZWY4YzRkIiwiaWF0IjoxNjc3" +
-                                "NjExMDY5LCJleHAiOjE2Nzc2MTE5Njl9.")
-                        .isactive(Boolean.TRUE)
-                        .build())
-                .build();
-
-        Mockito.when(registerRepository.findByEmail(Mockito.anyString()))
-                .thenReturn(Optional.empty());
-        Mockito.when(registerRepository.save(Mockito.any(User.class)))
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(tokenProvider.generateToken(any(User.class))).thenReturn("jwt-de-prueba");
+        when(passwordEncoder.encode("Hunter")).thenReturn("hash-de-prueba");
+        when(userRepository.save(any(User.class)))
                 .thenReturn(User.builder()
                         .idUser("6e8b6014-2c70-478d-9bc1-e50deb22f46b")
-                        .token("eyJhbGciOiJub25lIn0.eyJuYW1lIjoiSnVhbiBSb2RyaWd1ZXoiLCJlbWFpbCI6Im" +
-                                "p1YW5Acm9kcmlndWV6Lm9yZyIsInN1YiI6Ikp1YW4gUm9kcmlndWV6IiwianRpIjo" +
-                                "iODU1YzI5MDctMGU1Zi00MzY2LWExNzktOGI1YmVmZWY4YzRkIiwiaWF0IjoxNjc3" +
-                                "NjExMDY5LCJleHAiOjE2Nzc2MTE5Njl9.")
+                        .token("jwt-de-prueba")
                         .isActive(Boolean.TRUE)
                         .build());
-        Mockito.when(phoneRepository.save(Mockito.any(Phone.class)))
-                .thenReturn(new Phone());
 
         ResponseRegister responseRegister = registerService.saveRegister(requestRegister);
 
         assertNotNull(responseRegister);
         assertNotNull(responseRegister.getUser());
-        assertEquals(responseRegister.getUser().getId(), responseRegisterExpected.getUser().getId());
-        assertEquals(responseRegister.getUser().getToken(), responseRegisterExpected.getUser().getToken());
-        assertEquals(responseRegister.getUser().getIsactive(),
-                responseRegisterExpected.getUser().getIsactive());
-        assertNull(responseRegister.getMensaje());
+        assertEquals("6e8b6014-2c70-478d-9bc1-e50deb22f46b", responseRegister.getUser().getId());
+        assertEquals("jwt-de-prueba", responseRegister.getUser().getToken());
+        assertEquals(Boolean.TRUE, responseRegister.getUser().getIsactive());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        User savedUser = captor.getValue();
+        assertEquals("jwt-de-prueba", savedUser.getToken());
+        assertEquals("hash-de-prueba", savedUser.getPassword());
+        assertEquals(1, savedUser.getPhones().size());
+        assertSame(savedUser, savedUser.getPhones().get(0).getUser());
     }
 
     @Test
     protected void saveRegisterPasswordInvalid() {
-        List<PhoneDTO> phones = new ArrayList<>();
-        phones.add(PhoneDTO.builder()
-                .number(3001245778L)
-                .citycode(1)
-                .countrycode(57)
-                .build());
-        RequestRegister requestRegister = RequestRegister.builder()
-                .name("Jhon Parra")
-                .email("Jhon@parra.org")
-                .password("Hunter3$%&")
-                .phones(phones)
-                .build();
+        RequestRegister requestRegister = buildRequest("Hunter3$%&");
 
-        ResponseRegister responseRegisterExpected = ResponseRegister.builder()
-                .mensaje(Constants.REGEX_PASSWORD)
-                .build();
+        InvalidPasswordException ex = assertThrows(InvalidPasswordException.class,
+                () -> registerService.saveRegister(requestRegister));
 
-        ResponseRegister responseRegister = registerService.saveRegister(requestRegister);
-
-        assertNotNull(responseRegister);
-        assertNull(responseRegister.getUser());
-        assertNotNull(responseRegister.getMensaje());
-        assertEquals(responseRegister.getMensaje(), Constants.REGEX_PASSWORD);
+        assertEquals(Constants.REGEX_PASSWORD, ex.getMessage());
+        verifyNoInteractions(userRepository);
     }
 
     @Test
     protected void saveRegisterEmailExist() {
-        List<PhoneDTO> phones = new ArrayList<>();
-        phones.add(PhoneDTO.builder()
-                .number(3001245778L)
-                .citycode(1)
-                .countrycode(57)
-                .build());
-        RequestRegister requestRegister = RequestRegister.builder()
-                .name("Jhon Parra")
-                .email("Jhon@parra.org")
-                .password("Hunter")
-                .phones(phones)
-                .build();
+        RequestRegister requestRegister = buildRequest("Hunter");
 
-        ResponseRegister responseRegisterExpected = ResponseRegister.builder()
-                .mensaje(Constants.EXIST_MAIL)
-                .build();
-
-        Mockito.when(registerRepository.findByEmail(Mockito.anyString()))
+        when(userRepository.findByEmail(anyString()))
                 .thenReturn(Optional.of(User.builder()
                         .name("Jhon Parra")
                         .email("Jhon@parra.org")
-                        .password("Hunter3$%&")
+                        .password("hash-existente")
                         .build()));
 
-        ResponseRegister responseRegister = registerService.saveRegister(requestRegister);
+        EmailAlreadyExistsException ex = assertThrows(EmailAlreadyExistsException.class,
+                () -> registerService.saveRegister(requestRegister));
 
-        assertNotNull(responseRegister);
-        assertNull(responseRegister.getUser());
-        assertNotNull(responseRegister.getMensaje());
-        assertEquals(responseRegister.getMensaje(), Constants.EXIST_MAIL);
+        assertEquals(Constants.EXIST_MAIL, ex.getMessage());
+        verify(userRepository, never()).save(any(User.class));
     }
+
 }

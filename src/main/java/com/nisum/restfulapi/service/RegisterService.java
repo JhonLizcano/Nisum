@@ -6,4 +6,5 @@ import com.nisum.restfulapi.model.DTO.ResponseRegister;
 public interface RegisterService {
 
     ResponseRegister saveRegister(RequestRegister requestRegister);
+
 }

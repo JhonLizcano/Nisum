@@ -1,17 +1,21 @@
 package com.nisum.restfulapi.model.DTO;
 
 import com.nisum.restfulapi.util.Constants;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestRegister {
 
 	@NotBlank(message = Constants.BLANK_NAME)
@@ -27,4 +31,5 @@ public class RequestRegister {
 
 	@NotEmpty(message = Constants.EMPTY_PHONES)
     private List<PhoneDTO> phones;
+
 }

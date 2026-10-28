@@ -10,5 +10,5 @@ import lombok.Data;
 public class ResponseRegister {
 
     private UserDto user;
-    private String mensaje;
+
 }

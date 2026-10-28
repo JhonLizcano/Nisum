@@ -3,6 +3,7 @@ package com.nisum.restfulapi.util;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
 import com.nisum.restfulapi.model.DTO.UserDto;
 import com.nisum.restfulapi.model.User;
+import com.nisum.restfulapi.util.Constants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,6 @@ public class RegisterMapperTest {
         assertNotNull(user);
         assertEquals(user.getName(), userExpected.getName());
         assertEquals(user.getEmail(), userExpected.getEmail());
-        assertEquals(user.getPassword(), userExpected.getPassword());
         assertTrue(user.getIsActive());
     }
 

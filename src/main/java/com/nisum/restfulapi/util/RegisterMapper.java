@@ -1,27 +1,38 @@
 package com.nisum.restfulapi.util;
 
+import com.nisum.restfulapi.model.DTO.PhoneDTO;
 import com.nisum.restfulapi.model.DTO.RequestRegister;
 import com.nisum.restfulapi.model.DTO.UserDto;
+import com.nisum.restfulapi.model.Phone;
 import com.nisum.restfulapi.model.User;
-
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class RegisterMapper {
 
     public static User getUserFromRequestRegister(RequestRegister requestRegister) {
+        LocalDateTime now = LocalDateTime.now();
         User user = User.builder()
                 .idUser(UUID.randomUUID().toString())
                 .name(requestRegister.getName())
                 .email(requestRegister.getEmail())
-                .password(requestRegister.getPassword())
-                .created(new Date())
-                .modified(new Date())
-                .lastLogin(new Date())
+                .created(now)
+                .modified(now)
+                .lastLogin(now)
                 .isActive(Boolean.TRUE)
                 .build();
-        user.setToken(JwtTokenUtil.generateToken(user));
+        if (requestRegister.getPhones() != null) {
+            requestRegister.getPhones().forEach(phoneDTO -> user.addPhone(getPhoneFromPhoneDto(phoneDTO)));
+        }
         return user;
+    }
+
+    private static Phone getPhoneFromPhoneDto(PhoneDTO phoneDTO) {
+        return Phone.builder()
+                .number(phoneDTO.getNumber())
+                .cityCode(phoneDTO.getCitycode())
+                .countryCode(phoneDTO.getCountrycode())
+                .build();
     }
 
     public static UserDto getUserDtoFromUser(User user) {
@@ -34,4 +45,5 @@ public class RegisterMapper {
                 .isactive(user.getIsActive())
                 .build();
     }
+
 }

@@ -1,11 +1,10 @@
 package com.nisum.restfulapi.model.DTO;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @Data
 @Builder
@@ -14,9 +13,10 @@ import java.util.Date;
 public class UserDto {
 
     private String id;
-    private Date created;
-    private Date modified;
-    private Date last_login;
+    private LocalDateTime created;
+    private LocalDateTime modified;
+    private LocalDateTime last_login;
     private String token;
     private Boolean isactive;
+
 }

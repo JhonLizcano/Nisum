@@ -1,36 +1,45 @@
 package com.nisum.restfulapi.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.ManyToOne;
-import javax.persistence.JoinColumn;
+import lombok.Setter;
 
 @Entity
 @Table(name = "PHONES")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Phone {
 
     @Id
-    @Column(name = "number")
-    private long number;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "city_code")
-    private int cityCode;
+    @Id
+    @Column(name = "number", nullable = false, length = 20)
+    private String number;
 
-    @Column(name = "country_code")
-    private int countryCode;
+    @Column(name = "city_code", length = 10)
+    private String cityCode;
 
-    @ManyToOne
-    @JoinColumn(name = "id_user", nullable=false)
+    @Column(name = "country_code", length = 10)
+    private String countryCode;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_user", nullable = false)
     private User user;
+
 }
